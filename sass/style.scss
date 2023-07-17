@@ -10,3 +10,13 @@ body {
   width: 100vh;
   height: 100vh;
 }
+
+.container {
+  max-width: 1140px;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+}
