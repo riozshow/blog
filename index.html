@@ -4,19 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/style.css">
   <title>Blog</title>
 </head>
 
 <body>
-  <header></header>
   <div class="container">
+    <header>
+      <h1>Blog</h1>
+      <div id="account-buttons">
+        <button id="login-button">Log in</button>
+        <button id="register=button">Register</button>
+      </div>
+      <div id="user-info">
+        <h5 id="user-name"></h5>
+        <button id="logout-button">Log out</button>
+      </div>
+    </header>
     <div class="content">
-      <div class="article-list"></div>
-      <div class="selected-article"></div>
-      <div class="blog-details"></div>
+      <div id="articles"></div>
+      <div id="selected-article"></div>
+      <div id="blog-details"></div>
     </div>
   </div>
+  <script src="js/reducer.js"></script>
+  <script src="js/components.js"></script>
   <script src="js/database.js"></script>
+  <script src="js/app.js"></script>
 </body>
 
 </html>

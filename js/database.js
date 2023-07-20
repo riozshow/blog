@@ -264,16 +264,35 @@ class DataBase {
 
     if (results.length === 0) return;
     if (results.length === 1) return this.getModel(collection, results[0]);
-    if (!options) {
-      return results.map((result) => this.getModel(collection, result));
+
+    if (options) {
+      const { random, sort, limit } = options;
+
+      if (random) {
+        return this.getModel(
+          collection,
+          results[Math.floor(Math.random() * results.length)]
+        );
+      }
+
+      if (sort) {
+        results.sort(
+          (a, b) =>
+            (a.date.getFullYear() * 10 +
+              a.date.getMonth() -
+              (b.date.getFullYear() * 10 + b.date.getMonth())) *
+            sort
+        );
+      }
+
+      if (limit) {
+        return results
+          .slice(0, limit)
+          .map((result) => this.getModel(collection, result));
+      }
     }
 
-    if (options.random) {
-      return this.getModel(
-        collection,
-        results[Math.floor(Math.random() * results.length)]
-      );
-    }
+    return results.map((result) => this.getModel(collection, result));
   }
 
   getModel(collection, data) {
@@ -289,8 +308,29 @@ class DataBase {
 }
 
 const queries = {
-  getTopTags: () => {
+  getAllArticles: () => {
     return dataBase
+      .find("articles", {}, { sort: -1 })
+      .reduce((articleGroup, article) => {
+        const year = article.date.getFullYear();
+        const month = article.date.toLocaleString("default", { month: "long" });
+        const groupName = `${month[0].toUpperCase()}${month.substring(
+          1
+        )} ${year}`;
+        if (!articleGroup[year]) {
+          articleGroup[year] = { [groupName]: [article] };
+        } else {
+          if (!articleGroup[year][groupName]) {
+            articleGroup[year][groupName] = [article];
+          } else {
+            articleGroup[year][groupName].push(article);
+          }
+        }
+        return articleGroup;
+      }, {});
+  },
+  getTopTags: () => {
+    const tags = dataBase
       .find("articles", {})
       .map((article) => article.tags)
       .flat()
@@ -302,6 +342,9 @@ const queries = {
         }
         return list;
       }, {});
+    return Object.entries(tags)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10);
   },
   getMostActiveUsers: () => {
     const mostActiveUsers = dataBase
@@ -324,10 +367,15 @@ const queries = {
           amount,
         };
       })
-      .sort((a, b) => b.amount - a.amount);
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 5);
+  },
+  getCommentsOfArticle: (_id) => {
+    return dataBase.find("comments", { articleId: _id }, { sort: -1 });
+  },
+  getUser: (_id) => {
+    return dataBase.find("users", { _id });
   },
 };
 
 const dataBase = new DataBase();
-
-console.log(queries.getMostActiveUsers());
