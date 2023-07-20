@@ -231,7 +231,7 @@ class DataBase {
       }
 
       if (typeof data[propertyName] != type) {
-        throw new Error(`Wrong ${collection} data`);
+        throw new Error(`Wrong ${collection} property type`);
       }
 
       rawData[propertyName] = data[propertyName];
@@ -245,11 +245,14 @@ class DataBase {
       return;
 
     this.data[collection].push(rawData);
+
+    localStorage.setItem("blog-data", JSON.stringify(this.data));
   }
 
   find(collection, query, options) {
     if (!this.data[collection]) return;
-    const results = this.data[collection]
+
+    let results = this.data[collection]
       .map((document) => {
         for (const property of Object.keys(query)) {
           if (document[property] !== query[property]) return;
@@ -259,7 +262,7 @@ class DataBase {
       .filter((document) => document != null);
 
     if (Object.keys(query).length === 0) {
-      results.push(...this.data[collection]);
+      results = [...this.data[collection]];
     }
 
     if (results.length === 0) return;
@@ -278,10 +281,7 @@ class DataBase {
       if (sort) {
         results.sort(
           (a, b) =>
-            (a.date.getFullYear() * 10 +
-              a.date.getMonth() -
-              (b.date.getFullYear() * 10 + b.date.getMonth())) *
-            sort
+            (new Date(a.date).getTime() - new Date(b.date).getTime()) * sort
         );
       }
 
@@ -293,6 +293,7 @@ class DataBase {
     }
 
     return results.map((result) => this.getModel(collection, result));
+    console.log(this.data[collection].length);
   }
 
   getModel(collection, data) {
@@ -312,8 +313,10 @@ const queries = {
     return dataBase
       .find("articles", {}, { sort: -1 })
       .reduce((articleGroup, article) => {
-        const year = article.date.getFullYear();
-        const month = article.date.toLocaleString("default", { month: "long" });
+        const year = new Date(article.date).getFullYear();
+        const month = new Date(article.date).toLocaleString("default", {
+          month: "long",
+        });
         const groupName = `${month[0].toUpperCase()}${month.substring(
           1
         )} ${year}`;
@@ -371,10 +374,34 @@ const queries = {
       .slice(0, 5);
   },
   getCommentsOfArticle: (_id) => {
-    return dataBase.find("comments", { articleId: _id }, { sort: -1 });
+    const comments = dataBase.find(
+      "comments",
+      { articleId: _id },
+      { sort: -1 }
+    );
+    if (!comments) {
+      return [];
+    }
+    if (comments.length) {
+      return comments;
+    }
+    return [comments];
   },
   getUser: (_id) => {
     return dataBase.find("users", { _id });
+  },
+  loginUser: (login, password) => {
+    return dataBase.find("users", { login, password });
+  },
+  registerUser: (login, password, name, isAuthor) => {
+    const user = new User({ login, password, name, isAuthor });
+    dataBase.insert("users", user);
+  },
+  createComment: (comment) => {
+    dataBase.insert("comments", comment);
+  },
+  createArticle: (article) => {
+    dataBase.insert("articles", article);
   },
 };
 

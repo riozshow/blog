@@ -61,6 +61,38 @@ header {
   }
 }
 
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .modal-window {
+    background-color: aliceblue;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 90%;
+    max-width: 80%;
+    overflow-y: scroll;
+
+    &.article {
+      height: 80%;
+      width: 70%;
+    }
+  }
+
+  .paragraphs {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 /* Articles list */
 
 .month-tab {

@@ -1,6 +1,8 @@
 const store = {
   selectedMonthTab: { state: null, observers: [] },
   selectedArticle: { state: null, observers: [] },
+  newComments: { state: null, observers: [] },
+  newArticles: { state: null, observers: [] },
   loggedUser: { state: null, observers: [] },
 };
 

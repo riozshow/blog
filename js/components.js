@@ -58,6 +58,23 @@ class ArticleList extends Component {
       });
     });
   }
+
+  toggleCreateArticleButton(user) {
+    const button = this.innerBody.querySelector(".create-article");
+    if (button) {
+      button.remove();
+    }
+    if (!user) return;
+    if (user.isAuthor) {
+      const button = document.createElement("button");
+      button.className = "create-article";
+      button.innerHTML = "Create new article...";
+      button.onclick = () => {
+        new ArticleModal();
+      };
+      this.innerBody.prepend(button);
+    }
+  }
 }
 
 class MonthTab extends Component {
@@ -165,6 +182,7 @@ class CommentsBox extends Component {
     }
     const { _id } = this.state.article.state.article;
     const comments = queries.getCommentsOfArticle(_id);
+
     this.innerBody.innerHTML = `
       <h2>Comments (${comments.length})</h2>
       <ul>
@@ -191,7 +209,56 @@ class CommentsBox extends Component {
           .replaceAll(",", "")}
       </ul>
     `;
-    console.log(comments);
+  }
+}
+
+class CommentTyper extends Component {
+  render() {
+    if (!this.state.article) {
+      this.innerBody.innerHTML = "";
+      return;
+    }
+    if (!this.state.user) {
+      this.innerBody.innerHTML = `
+      <div class='login-to-comment'>
+        <h3>Log in to comment</h3>
+        <button>Log in</button>
+      </div>  
+      `;
+      this.innerBody.querySelector("button").onclick = () => {
+        new LoginModal();
+      };
+    } else {
+      this.innerBody.innerHTML = `
+      <h3>Type comment:</h3>
+      <input type='text' class='comment-text' placeholder='Comment...'></input>
+      <button>Send</button>
+    `;
+      const comment = this.innerBody.querySelector(".comment-text");
+      comment.onkeydown = (e) => {
+        if (e.key === "Enter") {
+          this.sendComment(comment);
+        }
+      };
+      this.innerBody.querySelector("button").onclick = () => {
+        this.sendComment(comment);
+      };
+    }
+  }
+
+  sendComment(comment) {
+    if (comment.value.length > 0) {
+      const newComment = store.loggedUser.state.createComment(
+        this.state.article.state.article._id,
+        {
+          content: comment.value,
+          date: new Date(Date.now()),
+        }
+      );
+      comment.value = "";
+      queries.createComment(newComment);
+      dispatch(store.newComments, newComment);
+    }
   }
 }
 
