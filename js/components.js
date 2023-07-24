@@ -51,7 +51,7 @@ class ArticleList extends Component {
         {}
       )
     );
-    this.innerBody.innerHTML = "";
+    this.innerBody.innerHTML = "<h1>Articles</h1>";
     nodes.reverse().map((year) => {
       year.map((element) => {
         this.innerBody.append(element);
@@ -82,7 +82,7 @@ class MonthTab extends Component {
     if (!this.state.articles || !this.state.name) {
       throw new Error("There is no any articles loaded in this month");
     }
-    const header = document.createElement("div");
+    const header = document.createElement("li");
     header.innerHTML = this.state.name;
     this.innerBody.innerHTML = "";
     this.innerBody.append(header);
@@ -126,7 +126,12 @@ class ArticleTab extends Component {
     }
     const { title, date } = this.state.article;
     const articleTitle = document.createElement("h5");
-    articleTitle.innerHTML = title;
+    articleTitle.innerHTML = `
+      <div class='article-tab-wrapper'>
+        <h5>${title}</h5>
+        <p>${convertDate("article-tab", date)}</p>
+      </div>
+    `;
     this.innerBody.append(articleTitle);
   }
 
@@ -154,11 +159,12 @@ class ArticleBox extends Component {
       this.state.article.state.article;
     const user = queries.getUser(userId);
     this.innerBody.innerHTML = `
-      <div class='article-author'>
-        <h5>${user.name}</h5>
-        <p>${date.toLocaleString()}</p>
-      </div>
       <h1>${title}</h1>
+      <div class='article-author'>
+        <i class="fa-solid fa-user"></i>
+        <h5>${user.name}</h5>
+        <p>${convertDate("article", date)}</p>
+      </div>
       <h3>${description}</h3>
       <div class='article-content'>
         ${content
@@ -191,6 +197,7 @@ class CommentsBox extends Component {
             const user = queries.getUser(comment.userId);
             return `
             <li class='comment'>
+              <i class=" fa-solid fa-message "></i>
               <div>
                 <h5>
                   ${user.name}
@@ -199,9 +206,7 @@ class CommentsBox extends Component {
                   ${comment.content}
                 </p>
               </div>
-              <p class='comment-date'>
-                ${comment.date.toLocaleString()}
-              </p>
+              ${convertDate("comment", comment.date)}
             </li>
           `;
           })
@@ -276,7 +281,7 @@ class BlogDetailsBox extends Component {
         ${this.state.users
           .map((user) => {
             return `
-              <li>
+              <li class='top-commentator'>
                 <h5>${user.user}</h5>
                 <p>${user.amount} comments</p>
               </li>
@@ -287,14 +292,18 @@ class BlogDetailsBox extends Component {
       </ul>
       <h2>Top tags</h2>
       <ul>
-          ${this.state.tags.map(([tag, amount]) => {
-            return `
-              <li>
+          ${this.state.tags
+            .map(([tag, amount]) => {
+              return `
+              <li class='top-tags'>
+                <i class="fa-solid fa-tag"></i>
                 <h5>${tag}</h5>
                 <p>${amount}</p>
               </li>
             `;
-          })}
+            })
+            .join()
+            .replaceAll(",", "")}
       </ul>
     `;
   }

@@ -4,29 +4,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="https://kit.fontawesome.com/dcbd923284.js" crossorigin="anonymous"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Text&family=Rajdhani:wght@300;400;500&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
   <title>Blog</title>
 </head>
 
 <body>
-  <div class="container">
-    <header>
+  <header>
+    <div class="container">
       <h1>Blog</h1>
       <div id="account-buttons">
-        <button id="login-button">Log in</button>
-        <button id="register-button">Register</button>
+        <button type="button" id="login-button">Log in</button>
+        <button type="button" id="register-button">Register</button>
       </div>
       <div id="user-info">
-        <h5 id="user-name"></h5>
-        <button id="logout-button">Log out</button>
+        <h5 id="user-name">User</h5>
+        <button type="button" id="logout-button">Log out</button>
       </div>
-    </header>
+    </div>
+  </header>
+  <div class="container">
     <div class="content">
       <div id="articles"></div>
       <div id="selected-article"></div>
       <div id="blog-details"></div>
     </div>
   </div>
+  <script src="js/tools.js"></script>
   <script src="js/reducer.js"></script>
   <script src="js/components.js"></script>
   <script src="js/database.js"></script>

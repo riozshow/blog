@@ -293,7 +293,6 @@ class DataBase {
     }
 
     return results.map((result) => this.getModel(collection, result));
-    console.log(this.data[collection].length);
   }
 
   getModel(collection, data) {
