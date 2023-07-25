@@ -8,6 +8,7 @@ $color-article-list-background: #89a4b3;
 $color-background-tint: #bddbeb;
 $color-background-dark: #a8d1ff;
 $color-background-body: #adc4d0;
+$color-red: #c41919;
 
 $bg-500: grey;
 $bg-600: darkgrey;
@@ -39,6 +40,7 @@ body {
 }
 
 button {
+  align-self: center;
   color: $color-secondary;
   background-color: $color-primary;
   padding: 0.6rem 1rem;
@@ -53,6 +55,26 @@ button {
   &:hover {
     box-shadow: inset 0 0 7px $color-secondary;
   }
+}
+
+input,
+textarea {
+  font-size: 16px;
+  font-family: $font-regular;
+  background-color: $color-secondary;
+  padding: 0.5rem;
+  border-radius: 7px;
+  border: 1px solid $color-primary-tint;
+
+  &:focus-visible {
+    border: 1px solid $color-primary-tint;
+    outline: none;
+    background-color: $color-background;
+  }
+}
+
+::placeholder {
+  color: $color-primary-tint;
 }
 
 .container {
@@ -100,24 +122,98 @@ button {
   align-items: center;
   justify-content: center;
 
+  h2 {
+    margin: 0.5rem;
+  }
+
+  h3 {
+    font-size: 14px;
+    color: $color-red;
+  }
+
   .modal-window {
-    background-color: aliceblue;
+    border-radius: 10px;
+    border: 2px solid $color-primary-tint;
+    padding: 2rem;
+    background-color: $color-background-body;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 1rem;
     max-height: 90%;
     max-width: 80%;
     overflow-y: scroll;
+    filter: drop-shadow(2px 2px 10px black);
 
     &.article {
       height: 80%;
-      width: 70%;
+      width: 90%;
+      max-width: 800px;
+
+      input,
+      textarea {
+        width: 100%;
+      }
+
+      textarea {
+        margin: 1rem 0;
+        height: 150px;
+      }
+
+      .title {
+        width: 100%;
+      }
+
+      #description {
+        height: 80px;
+      }
+    }
+
+    .is-author {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .new-paragraph-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+
+      p {
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+
+    .tags {
+      margin-top: auto;
     }
   }
 
   .paragraphs {
+    .paragraph-container {
+      flex-shrink: 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: $color-background;
+      padding: 1rem;
+      border-radius: 10px;
+
+      button {
+        align-self: start;
+      }
+    }
+
+    flex-shrink: 100;
+    overflow: scroll;
+    align-items: center;
+    width: 100%;
     display: flex;
     flex-direction: column;
+    gap: 3rem;
   }
 }
 

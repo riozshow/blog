@@ -21,9 +21,9 @@ class LoginModal extends Modal {
   render() {
     this.innerBody.innerHTML = `
         <h2>Log in</h2>
-        <h3 class='red'></h3>
-        <input type='text' id='login'></input>
-        <input type='password' id='password'></input>
+        <h3></h3>
+        <input type='text' id='login' placeholder='Login' spellcheck='false'></input>
+        <input type='password' id='password' placeholder='Password'></input>
         <div class='bottom-buttons'>
             <button id='submit-login'>Log in</button>
             <button class='close'>Cancel</button>
@@ -55,13 +55,15 @@ class RegisterModal extends Modal {
   render() {
     this.innerBody.innerHTML = `
           <h2>Register</h2>
-          <h3 class='red'></h3>
+          <h3></h3>
           <input type='text' id='login' placeholder='Login...'></input>
           <input type='text' id='name' placeholder='Name...'></input>
           <input type='password' id='password' placeholder='Password...'></input>
           <input type='password' id='password-repeat' placeholder='Confirm password...'></input>
-          <input type='checkbox' id='isAuthor'></input>
-          <p>Is user an author?</p>
+          <div class='is-author'>
+            <input type='checkbox' id='isAuthor'></input>
+            <p>Is user an author?</p>
+          </div> 
           <div class='bottom-buttons'>
               <button id='submit-register'>Register</button>
               <button class='close'>Cancel</button>
@@ -86,8 +88,7 @@ class RegisterModal extends Modal {
           loginInput.value + passwordInput.value + confirmPassword.value
         )
       ) {
-        infoText.innerHTML =
-          "Only alphanumeric characters are allowed in login and password";
+        infoText.innerHTML = "Only alphanumeric characters are allowed in login and password";
         return;
       }
       queries.registerUser(
@@ -110,10 +111,13 @@ class ArticleModal extends Modal {
   render() {
     this.innerBody.classList.add("article");
     this.innerBody.innerHTML = `
-        <h2>Create Article</h2>
-        <h3 class='red'></h3>
+        <h2 class='title'>Create Article</h2>
         <input type='text' id='title' placeholder='Title...'></input>
-        <input type='text' id='description' placeholder='Description...'></input>
+        <textarea id='description' placeholder='Description...'></textarea>
+        <div class='new-paragraph-container'>
+          <button class='new-paragraph'>+New paragraph</button>
+          <p class='paragraphs-counter'>Paragraphs: 1</p>
+        </div>
         <div class='paragraphs'></div>
         <input type='text' class='tags' placeholder='Tags... (comma separated)'></input>
         <div class='bottom-buttons'>
@@ -127,6 +131,12 @@ class ArticleModal extends Modal {
     const descriptionInput = this.innerBody.querySelector("#description");
     const submitButton = this.innerBody.querySelector("#submit-article");
     const closeButton = this.innerBody.querySelector(".close");
+    const newParagraph = this.innerBody.querySelector(".new-paragraph");
+    this.paragraphCounter = this.innerBody.querySelector(".paragraphs-counter");
+
+    newParagraph.onclick = () => {
+      this.createParagraph();
+    };
 
     this.tagsBox = this.innerBody.querySelector(".tags");
     this.paragraphsBox = this.innerBody.querySelector(".paragraphs");
@@ -156,9 +166,16 @@ class ArticleModal extends Modal {
     this.renderParagraphs();
   }
 
+  removeParagraph(paragraph) {
+    this.paragraphs = this.paragraphs.filter((existed) => existed !== paragraph);
+    this.renderParagraphs();
+  }
+
   renderParagraphs() {
     this.paragraphsBox.innerHTML = "";
     this.paragraphs.map((paragraph) => {
+      const container = document.createElement("div");
+      container.className = "paragraph-container";
       const header = document.createElement("input");
       header.placeholder = "Paragraph header...";
       const script = document.createElement("textarea");
@@ -177,24 +194,12 @@ class ArticleModal extends Modal {
       script.onchange = (e) => {
         paragraph.paragraph = e.target.value;
       };
-      this.paragraphsBox.append(...[header, script]);
+      container.append(...[header, script]);
+      this.paragraphsBox.append(container);
       if (this.paragraphs.length > 1) {
-        this.paragraphsBox.append(removeParagraph);
+        container.append(removeParagraph);
       }
     });
-    const newParagraph = document.createElement("button");
-    newParagraph.classList.add("new-button");
-    newParagraph.innerHTML = "New paragraph";
-    newParagraph.onclick = () => {
-      this.createParagraph();
-    };
-    this.paragraphsBox.append(newParagraph);
-  }
-
-  removeParagraph(paragraph) {
-    this.paragraphs = this.paragraphs.filter(
-      (existed) => existed !== paragraph
-    );
-    this.renderParagraphs();
+    this.paragraphCounter.innerHTML = `Paragraphs: ${this.paragraphs.length}`;
   }
 }
