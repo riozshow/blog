@@ -168,7 +168,7 @@ class DataBase {
         password: createId(),
         isAuthor: true,
       });
-      this.insert("users", author);
+      this.insert("users", author, { skipSave: true });
     });
 
     new Array(200).fill(1).map(() => {
@@ -178,7 +178,7 @@ class DataBase {
         password: createId(),
         isAuthor: false,
       });
-      this.insert("users", user);
+      this.insert("users", user, { skipSave: true });
     });
 
     new Array(200).fill(1).map(() => {
@@ -195,7 +195,7 @@ class DataBase {
         date: createRandomDate(),
         tags: new Array(7).fill(1).map(() => createRandomWord()),
       });
-      this.insert("articles", article);
+      this.insert("articles", article, { skipSave: true });
     });
 
     new Array(2000).fill(1).map(() => {
@@ -205,11 +205,17 @@ class DataBase {
         content: createRandomSentence(Math.floor(Math.random() * 4) + 1),
         date: createRandomDate(),
       });
-      this.insert("comments", comment);
+      this.insert("comments", comment, { skipSave: true });
     });
+
+    this.#saveDatabase();
   }
 
-  insert(collection, data) {
+  #saveDatabase() {
+    localStorage.setItem("blog-data", JSON.stringify(this.data));
+  }
+
+  insert(collection, data, options) {
     if (typeof data !== "object" || !data.schema || typeof data.schema !== "object") {
       throw new Error("Wrong insert properties");
     }
@@ -239,7 +245,11 @@ class DataBase {
 
     this.data[collection].push(rawData);
 
-    localStorage.setItem("blog-data", JSON.stringify(this.data));
+    if (options) {
+      if (options.skipSave) return;
+    }
+
+    this.#saveDatabase();
   }
 
   find(collection, query, options) {
