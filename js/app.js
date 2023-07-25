@@ -1,3 +1,5 @@
+"use-strict";
+
 /* Header */
 
 const accountButtons = document.querySelector("#account-buttons");

@@ -1,3 +1,5 @@
+"use-strict";
+
 class Modal {
   constructor() {
     this.body = document.createElement("div");

@@ -1,3 +1,5 @@
+"use-strict";
+
 const createId = () => {
   return `${Date.now()}-${(Math.random() * 99999)
     .toLocaleString("en-US", {
@@ -185,9 +187,7 @@ class DataBase {
         title: createRandomSentence(Math.floor(Math.random() * 4) + 1),
         description: new Array(3)
           .fill(1)
-          .map(() =>
-            createRandomSentence(Math.floor(Math.random() * 8) + 8, true)
-          )
+          .map(() => createRandomSentence(Math.floor(Math.random() * 8) + 8, true))
           .join()
           .toString()
           .replaceAll(",", ""),
@@ -210,11 +210,7 @@ class DataBase {
   }
 
   insert(collection, data) {
-    if (
-      typeof data !== "object" ||
-      !data.schema ||
-      typeof data.schema !== "object"
-    ) {
+    if (typeof data !== "object" || !data.schema || typeof data.schema !== "object") {
       throw new Error("Wrong insert properties");
     }
 
@@ -224,9 +220,7 @@ class DataBase {
       const { type, unique } = data.schema[propertyName];
       if (unique) {
         if (this.find(collection, { [propertyName]: data[propertyName] })) {
-          throw new Error(
-            `This ${propertyName} already exist in ${collection}`
-          );
+          throw new Error(`This ${propertyName} already exist in ${collection}`);
         }
       }
 
@@ -241,8 +235,7 @@ class DataBase {
       this.data[collection] = [];
     }
 
-    if (Object.keys(data.schema).length !== Object.keys(rawData).length - 1)
-      return;
+    if (Object.keys(data.schema).length !== Object.keys(rawData).length - 1) return;
 
     this.data[collection].push(rawData);
 
@@ -272,23 +265,15 @@ class DataBase {
       const { random, sort, limit } = options;
 
       if (random) {
-        return this.getModel(
-          collection,
-          results[Math.floor(Math.random() * results.length)]
-        );
+        return this.getModel(collection, results[Math.floor(Math.random() * results.length)]);
       }
 
       if (sort) {
-        results.sort(
-          (a, b) =>
-            (new Date(a.date).getTime() - new Date(b.date).getTime()) * sort
-        );
+        results.sort((a, b) => (new Date(a.date).getTime() - new Date(b.date).getTime()) * sort);
       }
 
       if (limit) {
-        return results
-          .slice(0, limit)
-          .map((result) => this.getModel(collection, result));
+        return results.slice(0, limit).map((result) => this.getModel(collection, result));
       }
     }
 
@@ -309,27 +294,23 @@ class DataBase {
 
 const queries = {
   getAllArticles: () => {
-    return dataBase
-      .find("articles", {}, { sort: -1 })
-      .reduce((articleGroup, article) => {
-        const year = new Date(article.date).getFullYear();
-        const month = new Date(article.date).toLocaleString("default", {
-          month: "long",
-        });
-        const groupName = `${month[0].toUpperCase()}${month.substring(
-          1
-        )} ${year}`;
-        if (!articleGroup[year]) {
-          articleGroup[year] = { [groupName]: [article] };
+    return dataBase.find("articles", {}, { sort: -1 }).reduce((articleGroup, article) => {
+      const year = new Date(article.date).getFullYear();
+      const month = new Date(article.date).toLocaleString("default", {
+        month: "long",
+      });
+      const groupName = `${month[0].toUpperCase()}${month.substring(1)} ${year}`;
+      if (!articleGroup[year]) {
+        articleGroup[year] = { [groupName]: [article] };
+      } else {
+        if (!articleGroup[year][groupName]) {
+          articleGroup[year][groupName] = [article];
         } else {
-          if (!articleGroup[year][groupName]) {
-            articleGroup[year][groupName] = [article];
-          } else {
-            articleGroup[year][groupName].push(article);
-          }
+          articleGroup[year][groupName].push(article);
         }
-        return articleGroup;
-      }, {});
+      }
+      return articleGroup;
+    }, {});
   },
   getTopTags: () => {
     const tags = dataBase
@@ -373,11 +354,7 @@ const queries = {
       .slice(0, 5);
   },
   getCommentsOfArticle: (_id) => {
-    const comments = dataBase.find(
-      "comments",
-      { articleId: _id },
-      { sort: -1 }
-    );
+    const comments = dataBase.find("comments", { articleId: _id }, { sort: -1 });
     if (!comments) {
       return [];
     }

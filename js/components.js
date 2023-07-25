@@ -1,3 +1,5 @@
+"use-strict";
+
 class Component {
   constructor(className) {
     this.body = document.createElement("div");
@@ -30,26 +32,23 @@ class ArticleList extends Component {
       throw new Error("There is no any articles loaded");
     }
     const nodes = Object.values(
-      Object.entries(this.state.articles).reduce(
-        (nodes, [year, yearContent]) => {
-          const header = document.createElement("h3");
-          header.innerHTML = year;
-          nodes[year] = [header];
-          Object.entries(yearContent).map(([monthName, monthArticles]) => {
-            const monthComponent = new MonthTab("month-tab");
-            nodes[year].push(monthComponent.body);
-            monthComponent.setState({
-              name: monthName,
-              articles: monthArticles,
-            });
-            observe(store.selectedMonthTab, () => {
-              monthComponent.select();
-            });
+      Object.entries(this.state.articles).reduce((nodes, [year, yearContent]) => {
+        const header = document.createElement("h3");
+        header.innerHTML = year;
+        nodes[year] = [header];
+        Object.entries(yearContent).map(([monthName, monthArticles]) => {
+          const monthComponent = new MonthTab("month-tab");
+          nodes[year].push(monthComponent.body);
+          monthComponent.setState({
+            name: monthName,
+            articles: monthArticles,
           });
-          return nodes;
-        },
-        {}
-      )
+          observe(store.selectedMonthTab, () => {
+            monthComponent.select();
+          });
+        });
+        return nodes;
+      }, {})
     );
     this.innerBody.innerHTML = "<h1>Articles</h1>";
     nodes.reverse().map((year) => {

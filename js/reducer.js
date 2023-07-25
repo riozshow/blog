@@ -1,3 +1,5 @@
+"use-strict";
+
 const store = {
   selectedMonthTab: { state: null, observers: [] },
   selectedArticle: { state: null, observers: [] },
@@ -7,11 +9,7 @@ const store = {
 };
 
 const dispatch = (storeProperty, state) => {
-  if (
-    !storeProperty ||
-    typeof storeProperty !== "object" ||
-    !storeProperty.observers
-  ) {
+  if (!storeProperty || typeof storeProperty !== "object" || !storeProperty.observers) {
     throw new Error("Wrong store property");
   }
   storeProperty.state = state;
