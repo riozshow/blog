@@ -19,6 +19,11 @@ class Component {
       if (!this.render) {
         throw new Error("Component has not render function");
       }
+
+      if (this.template) {
+        this.templateRenderer = Handlebars.compile(this.template.innerHTML);
+      }
+
       this.render();
     }
   }
@@ -32,23 +37,26 @@ class ArticleList extends Component {
       throw new Error("There is no any articles loaded");
     }
     const nodes = Object.values(
-      Object.entries(this.state.articles).reduce((nodes, [year, yearContent]) => {
-        const header = document.createElement("h3");
-        header.innerHTML = year;
-        nodes[year] = [header];
-        Object.entries(yearContent).map(([monthName, monthArticles]) => {
-          const monthComponent = new MonthTab("month-tab");
-          nodes[year].push(monthComponent.body);
-          monthComponent.setState({
-            name: monthName,
-            articles: monthArticles,
+      Object.entries(this.state.articles).reduce(
+        (nodes, [year, yearContent]) => {
+          const header = document.createElement("h3");
+          header.innerHTML = year;
+          nodes[year] = [header];
+          Object.entries(yearContent).map(([monthName, monthArticles]) => {
+            const monthComponent = new MonthTab("month-tab");
+            nodes[year].push(monthComponent.body);
+            monthComponent.setState({
+              name: monthName,
+              articles: monthArticles,
+            });
+            observe(store.selectedMonthTab, () => {
+              monthComponent.select();
+            });
           });
-          observe(store.selectedMonthTab, () => {
-            monthComponent.select();
-          });
-        });
-        return nodes;
-      }, {})
+          return nodes;
+        },
+        {}
+      )
     );
     this.innerBody.innerHTML = "<h1>Articles</h1>";
     nodes.reverse().map((year) => {
@@ -119,19 +127,18 @@ class MonthTab extends Component {
 }
 
 class ArticleTab extends Component {
+  template = document.querySelector("#template-article-tab");
+
   render() {
     if (!this.state.article) {
       throw new Error("Wrong article tab data");
     }
     const { title, date } = this.state.article;
-    const articleTitle = document.createElement("h5");
-    articleTitle.innerHTML = `
-      <div class='article-tab-wrapper'>
-        <h5>${title}</h5>
-        <p>${convertDate("article-tab", date)}</p>
-      </div>
-    `;
-    this.innerBody.append(articleTitle);
+    const convertedDate = convertDate("article-tab", date);
+    this.innerBody.innerHTML = this.templateRenderer({
+      title,
+      date: convertedDate,
+    });
   }
 
   select() {
@@ -150,69 +157,49 @@ class ArticleTab extends Component {
 /* Article Body */
 
 class ArticleBox extends Component {
+  template = document.querySelector("#template-article-body");
+
   render() {
     if (!this.state.article) {
       throw new Error("Wrong article data");
     }
-    const { content, date, description, tags, title, userId, _id } =
+    const { content, date, description, title, userId } =
       this.state.article.state.article;
     const user = queries.getUser(userId);
-    this.innerBody.innerHTML = `
-      <h1>${title}</h1>
-      <div class='article-author'>
-        <i class="fa-solid fa-user"></i>
-        <h5>${user.name}</h5>
-        <p>${convertDate("article", date)}</p>
-      </div>
-      <h3>${description}</h3>
-      <div class='article-content'>
-        ${content
-          .map((section) => {
-            return `
-          <h4>${section.header}</h4>
-          <p>${section.paragraph}</p>
-        `;
-          })
-          .join()
-          .replaceAll(",", "")}
-      </div>
-    `;
+
+    const templateData = {
+      title,
+      user: user.name,
+      date: convertDate("article", date),
+      description,
+      sections: content,
+    };
+
+    this.innerBody.innerHTML = this.templateRenderer(templateData);
   }
 }
 
 class CommentsBox extends Component {
+  template = document.querySelector("#template-article-comments");
+
   render() {
     if (!this.state.article) {
       throw new Error("Wrong comments data");
     }
     const { _id } = this.state.article.state.article;
-    const comments = queries.getCommentsOfArticle(_id);
+    const comments = queries.getCommentsOfArticle(_id).map((comment) => {
+      comment.user = queries.getUser(comment.userId).name;
+      comment.time = new Date(comment.date).toLocaleTimeString();
+      comment.date = new Date(comment.date).toDateString();
+      return comment;
+    });
 
-    this.innerBody.innerHTML = `
-      <h2>Comments (${comments.length})</h2>
-      <ul>
-        ${comments
-          .map((comment) => {
-            const user = queries.getUser(comment.userId);
-            return `
-            <li class='comment'>
-              <i class=" fa-solid fa-message "></i>
-              <div>
-                <h5>
-                  ${user.name}
-                </h5>
-                <p>
-                  ${comment.content}
-                </p>
-              </div>
-              ${convertDate("comment", comment.date)}
-            </li>
-          `;
-          })
-          .join()
-          .replaceAll(",", "")}
-      </ul>
-    `;
+    const templateData = {
+      commentsAmount: comments.length,
+      comments,
+    };
+
+    this.innerBody.innerHTML = this.templateRenderer(templateData);
   }
 }
 
@@ -269,41 +256,21 @@ class CommentTyper extends Component {
 /* Blog Details */
 
 class BlogDetailsBox extends Component {
+  template = document.querySelector("#template-blog-details");
+
   render() {
     if (!this.state.users || !this.state.tags) {
       throw new Error("Wrong blog details data");
     }
 
-    this.innerBody.innerHTML = `
-      <h2>Most active users</h2>
-      <ul>
-        ${this.state.users
-          .map((user) => {
-            return `
-              <li class='top-commentator'>
-                <h5>${user.user}</h5>
-                <p>${user.amount} comments</p>
-              </li>
-            `;
-          })
-          .join()
-          .replaceAll(",", "")}
-      </ul>
-      <h2>Top tags</h2>
-      <ul>
-          ${this.state.tags
-            .map(([tag, amount]) => {
-              return `
-              <li class='top-tags'>
-                <i class="fa-solid fa-tag"></i>
-                <h5>${tag}</h5>
-                <p>${amount}</p>
-              </li>
-            `;
-            })
-            .join()
-            .replaceAll(",", "")}
-      </ul>
-    `;
+    const templateData = {
+      users: this.state.users,
+      tags: this.state.tags.map(([tag, amount]) => ({
+        tag,
+        amount,
+      })),
+    };
+
+    this.innerBody.innerHTML = this.templateRenderer(templateData);
   }
 }

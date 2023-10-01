@@ -7,6 +7,75 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <script src="https://kit.fontawesome.com/dcbd923284.js" crossorigin="anonymous"></script>
+
+  <script id="template-article-tab" type="text/x-handlebars-template">
+      <div class="article-tab-wrapper">
+        <h5>{{title}}</h5>
+        <p>{{date}}</p>
+      </div>
+    </script>
+
+  <script id="template-article-body" type="text/x-handlebars-template">
+      <h1>{{title}}</h1>
+      <div class="article-author">
+        <i class="fa-solid fa-user"></i>
+        <h5>{{user}}</h5>
+        <p>{{date}}</p>
+      </div>
+      <h3>{{description}}</h3>
+      <div class="article-content">
+        {{#each sections}}
+          <h4>{{header}}</h4>
+          <p>{{paragraph}}</p>
+        {{/each}}
+      </div>
+    </script>
+
+  <script id="template-article-comments" type="text/x-handlebars-template">
+      <h2>Comments {{commentsAmount}}</h2>
+      <ul>
+        {{#each comments}}
+          <li class="comment">
+            <i class="fa-solid fa-message"></i>
+            <div>
+              <h5>
+                {{user}}
+              </h5>
+              <p>
+                {{content}}
+              </p>
+            </div>
+            <div class="date">
+              <p>{{date}}</p><p>{{time}}</p>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    </script>
+
+  <script id="template-blog-details" type="text/x-handlebars-template">
+      <h2>Most active users</h2>
+      <ul>
+        {{#each users}}
+          <li class="top-commentator">
+            <h5>{{user}}</h5>
+            <p>{{amount}} comments</p>
+          </li>
+        {{/each}}
+      </ul>
+      <h2>Top tags</h2>
+      <ul>
+        {{#each tags}}
+          <li class="top-tags">
+            <i class="fa-solid fa-tag"></i>
+            <h5>{{tag}}</h5>
+            <p>{{amount}}</p>
+          </li>
+        {{/each}}
+      </ul>
+    </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.1.0/handlebars.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Text&family=Rajdhani:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="./css/style.css">
